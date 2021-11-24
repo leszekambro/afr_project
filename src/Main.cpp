@@ -49,27 +49,12 @@ void ardroneNavdataCallback(const ardrone_autonomy::Navdata::ConstPtr& msg){
   isNavdataReady = true;
 }
 
-void markerPoseCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
-  pose_x = msg->pose.position.x;
-  pose_y = msg->pose.position.y;
-  pose_z = msg->pose.position.z;
-  isPoseReady = true;
-}
 
-void markerCallback(const visualization_msgs::Marker::ConstPtr& msg){
-  mid = msg->id;
-  isMarkerReady = true;
-}
-void cartPoseCallback(const gazebo_msgs::ModelStates::ConstPtr& msg){
-  pose_x_cart = msg->pose[11].position.x;
-  pose_y_cart = msg->pose[11].position.y;
-  isCartReady = true;
-}
 
 int main(int argc, char* argv[])
 {
   cout<<"Ros Ardrone Initialize"<<endl;
-  ros::init(argc, argv, "ardrone_control_reconf");
+  ros::init(argc, argv, "afr_control_reconf");
   ros::NodeHandle nh;
 
     
@@ -77,9 +62,6 @@ int main(int argc, char* argv[])
   ros::spinOnce();
 
   ros::Subscriber subscriberNavdata = nh.subscribe("/ardrone/navdata", 1, ardroneNavdataCallback);
-  ros::Subscriber subscriberPose = nh.subscribe("/aruco_single/pose", 1, markerPoseCallback);
-  ros::Subscriber subscriberMarker = nh.subscribe("/aruco_single/marker", 1, markerCallback);
-  ros::Subscriber subscriberCart = nh.subscribe("/gazebo/model_states", 1, cartPoseCallback);
   //ros::Publisher publisher = nh.advertise<std_msgs::Float32>("/fi", 1000);
   ros::Publisher publisher = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
   dynamic_reconfigure::Server<ardrone_control_reconf::paramsConfig> server;
@@ -101,23 +83,33 @@ int main(int argc, char* argv[])
       continue;
     }
 
-    geometry_msgs::Twist msg;
+    
    
    float h_m = navdata->altd/1000;
+   float error_h = h_zad - h_m;
+   float effort_z = kp * error_h;
    /*
-    * Kod sterowania
+    * control system
     * 
     */
    
    float ster_x = 0; 
    float ster_y = 0;
    
-   //msg.linear.z = ster;
-    msg.linear.x = ster_x;
-    msg.linear.y = ster_y;
+   
+   // sending control commands 
+   geometry_msgs::Twist msg;
+   
+   
+   
+    //msg.linear.x = effort2;
+    //msg.linear.y = ster_y;
+   
+    msg.linear.z = effort_z;
+   
     //cout << "X: " << navdata->ax << " Y: " << navdata->ay << endl;
     
-    cout << "ster: "<< ster_x <<setprecision(2)<< endl;
+    cout << "ster: "<< effort_z <<setprecision(2)<< endl;
     File << "X: " << navdata->ax << " Y: " << navdata->ay << endl;
     
     

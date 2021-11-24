@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ardrone_control_reconf)
+project(afr_control_reconf)
 
 add_compile_options(-std=c++11)
 
@@ -49,6 +49,6 @@ dynamic_reconfigure
 )
 
 
-add_executable(ardrone_control_reconf src/Main.cpp)
-add_dependencies(ardrone_control_reconf ${PROJECT_NAME}_gencfg)
-target_link_libraries(ardrone_control_reconf ${catkin_LIBRARIES} ${OpenCV_LIBS} X11)
+add_executable(afr_control_reconf src/Main.cpp)
+add_dependencies(afr_control_reconf ${PROJECT_NAME}_gencfg)
+target_link_libraries(afr_control_reconf ${catkin_LIBRARIES} ${OpenCV_LIBS} X11)
